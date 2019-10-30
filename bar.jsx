@@ -1,4 +1,5 @@
 import styles from "./lib/styles.jsx";
+import parse from "./lib/parse.jsx";
 
 const style = {
   background: styles.colors.bg,
@@ -16,8 +17,12 @@ const style = {
 
 export const refreshFrequency = 1000000;
 
+export const command = "./nibar/scripts/bar.sh";
+
 export const render = ({ output }) => {
-  return <div style={style} />;
+  const data = parse(output);
+  const colors = (data && data.colors) || {}
+  return <div style={Object.assign({}, style, colors)} />;
 };
 
 export default null;

@@ -1,24 +1,21 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 PATH=/usr/local/bin/:$PATH
 
-# Check if yabai exists
-if ! [ -x "$(command -v yabai)" ]; then
-  echo "{\"error\":\"yabai binary not found\"}"
-  exit 1
-fi
-
-SPACES=$(yabai -m query --spaces --display 1)
-ACTIVE=$(yabai -m query --spaces --space | jq .index)
-# APP_NAME=$(yabai -m query --windows --window | jq .app)
-# TYPE=$(yabai -m query --spaces --space | jq .type)
+SPACES_IDS=$(yabai -m query --spaces | jq -r 'map(.index) | .[]')
+SPACES_ARR="["
+for index in $SPACES_IDS; do
+  SPACES_ARR="$SPACES_ARR $(yabai -m query --spaces --space $index)," ;
+done
+SPACES_ARR=$(echo $SPACES_ARR | sed 's/,$//')
+SPACES_ARR="$SPACES_ARR]"
+SPACES=$(echo $SPACES_ARR | jq 'group_by(.display)')
 
 echo $(cat <<-EOF
 {
-	"desktop": {
-        "spaces": $SPACES,
-        "active": $ACTIVE
-	}
+  "desktop": {
+        "spaces": $SPACES
+  }
 }
 EOF
 )

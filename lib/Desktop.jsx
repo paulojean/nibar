@@ -10,32 +10,39 @@ const desktopStyle = {
   width: "2ch"
 };
 
-const renderSpace = (index, active, windows) => {
+const renderSpace = ({index, focused, windows}, idx) => {
   let contentStyle = JSON.parse(JSON.stringify(desktopStyle));
-  let hasWindows = windows > 0;
-  if (index == active) {
+  let hasWindows = windows && windows.length > 0;
+  if (!!focused) {
     contentStyle.color = styles.colors.fg;
   }
   return (
     <div style={contentStyle}>
-      {index}
-      {hasWindows ? "°" : " "}
+      {idx + 1}
+      {hasWindows ? "*" : " "}
     </div>
   );
 };
 
+const renderDisplay = (spaces, index) => {
+  const spacesToDisplay = spaces.map(renderSpace)
+
+  return (
+    <div style={containerStyle}>
+      
+      {spacesToDisplay}
+    </div>
+  );
+}
+
 const render = ({ output }) => {
   if (typeof output === "undefined") return null;
+  const displays = output
+        .spaces
+        .sort((a, b) => a[0].display - b[0].display)
+        .map(renderDisplay)
 
-  // const app = output.app;
-  // const type = output.type;
-  const spaces = [];
-
-  output.spaces.forEach(function(space) {
-    spaces.push(renderSpace(space.index, output.active, space.windows));
-  });
-
-  return <div style={containerStyle}>{spaces}</div>;
+  return <div style={containerStyle}>{displays}</div>;
 };
 
 export default render;
